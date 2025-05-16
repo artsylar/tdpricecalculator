@@ -1,0 +1,150 @@
+<html>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"> 
+	</script>
+    <style>
+      .usd {
+        font-size: 50px;
+        font-weight: bold;
+        margin-bottom: 100px;
+      }
+      .button{
+        font-size: 14px;
+        color: white;
+        background-color: #f85091;
+        border: 0px;
+      }
+      #iJpy, #iDiscount{
+        width:  100px;
+      }
+    </style>
+	<body>
+      <div>
+      <br/>
+      <br/>
+		  <label for="iStoreCategory">Store:</label>
+			<select name="iStoreCategory" id="iStoreCategory">
+				<option value="1">Online Orders (*local shipping fee not yet included)</option>
+   				<option value="1">Live Shopping (*depending on location, there might be misc. fee)</option>
+                <option value="2">Store Pickup (transportation fee not yet included)</option>
+                <option value="5">Shisui Outlet Live Shopping</option>        
+				<option value="3">Sanrio Puroland Order Pickup(transportation fee not yet included)</option>
+				<option value="3">Tokyo Disney Resort Park (transportation fee not yet included)</option>
+                <option value="4">Gachapon</option>
+				<option value="6">Kuji</option>
+			</select><br/><br/>
+		  <label for="iJpy">Price in JPY</label>
+		  <input type="number" id="iJpy" name="jpy">
+          <button name="action" id="btnAddTax" value="addTax" type="button" class="button">Add 10% tax</button>
+          <br/>
+          <label for="iDiscount">Discount Rate</label>
+		  <input type="number" id="iDiscount" name="discount">
+          <button name="action" id="btnDiscount" value="applyDiscount" type="button" class="button">Apply</button>
+          <!--<button name="action" value="clear" type="button" class="button">CLEAR</button>-->
+          <br><br>
+		  <div class="usd">
+		  </div>
+      </div>
+		  <script>
+            
+			$("#iJpy").on("keyup",function(){  
+				$(".usd").html("$" + computeUSD().toFixed(2));
+			});
+
+            $("#iJpy").focus(function(){
+              this.value = '';
+            });
+
+            $("#iDiscount").focus(function(){
+              this.value = '';
+            });
+			
+			
+			$("#iStoreCategory").on("change", function(){
+				$(".usd").html("$" + computeUSD().toFixed(2))
+				});
+
+            $(".clear-button").on("click", function () {
+				$("#iJpy").val("");
+				$(".usd").html("");
+			});
+
+            $("#btnAddTax").on("click", function () {
+              　var newJpyVal = 0;
+                newJpyVal = $("#iJpy").val() * 1.10;
+				$("#iJpy").val(newJpyVal.toFixed(2));
+                $(".usd").html("$" + computeUSD().toFixed(2));
+			});
+
+            $("#btnDiscount").on("click", function (){
+                var newJpyVal = 0;
+
+                if ($("#iDiscount").val() > 0){
+                  newJpyVal = $("#iJpy").val() * ((100 - $("#iDiscount").val())/100);
+        		  $("#iJpy").val(newJpyVal.toFixed(2));
+                  $(".usd").html("$" + computeUSD().toFixed(2));
+                }
+            });
+		  
+		  function computeUSD(){
+		  
+			var jpyVal = $('#iJpy').val();
+			var storeCategory = $('#iStoreCategory').val();
+			var mkUPRate = 0;
+			var baseMUPriceUSD = 0;
+			var finalSRPUSD = 0;
+			var basePriceUSD = 0;
+			
+			switch(storeCategory){
+				case "1": mkUPRate = 0.20; break; //Online Order, Regular Live Shopping
+                case "2": mkUPRate = 0.25; break; //Store Pickup
+				case "3": mkUPRate = 0.30; break; //Puroland
+				case "4": mkUPRate = 0.50; break; // Gachapon
+                case "5": mkUPRate = 0.27; break; //Shisui Outlet
+                case "6": mkUPRate = 0.50; break; // Kuji
+			}
+			
+			basePriceUSD = jpyVal/100;
+			
+			// Gachapon
+			if (storeCategory == "4"){
+				switch(basePriceUSD){
+					case 2: finalSRPUSD = 3; break;
+					case 3: finalSRPUSD = 4.5; break;
+					case 4: finalSRPUSD = 6; break;
+					case 5: finalSRPUSD = 7.5; break;
+					case 6: finalSRPUSD = 9; break;
+					case 8: finalSRPUSD = 11; break;
+				}
+			} else {
+				baseMUPriceUSD = basePriceUSD * (1+mkUPRate);
+				
+				if (jpyVal >= 0 && jpyVal < 4000){
+					finalSRPUSD = baseMUPriceUSD;
+					
+				} else if (jpyVal >= 4000 && jpyVal < 8000){
+					finalSRPUSD = baseMUPriceUSD - (basePriceUSD * (mkUPRate - 0.10));
+				
+				} else if (jpyVal >= 8000 && jpyVal < 12000){
+					
+					var newMkUPRate = 0;
+					newMkUPRate = mkUPRate - 0.20;
+					
+					if (newMkUPRate == 0){
+						finalSRPUSD = basePriceUSD;
+					} else {
+						finalSRPUSD = basePriceUSD * (1 + newMkUPRate);
+					}
+				
+				} else if (jpyVal >= 12000 && jpyVal < 15000){
+					finalSRPUSD = baseMUPriceUSD - (basePriceUSD * (mkUPRate + 0.05));
+				
+				} else if (jpyVal >= 15000) {
+					finalSRPUSD = baseMUPriceUSD - (basePriceUSD * (mkUPRate + 0.10));
+				}
+			}
+			return finalSRPUSD;
+			
+		  }
+	</script>
+	</body>
+</html>
