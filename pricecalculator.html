@@ -118,12 +118,14 @@
 				}
 			} else {
 				newMkUPRate = mkUPRate;				
-				if (jpyVal >= 3500 && jpyVal < 7500){
+				if (jpyVal >= 3500 && jpyVal < 5000){
 					newMkUPRate = newMkUPRate - 0.05;
+				} else if (jpyVal >= 5000 && jpyVal < 7500){
+					newMkUPRate = newMkUPRate - 0.20;
 				} else if (jpyVal >= 7500 && jpyVal < 12000){
-					newMkUPRate = newMkUPRate - 0.15;
-				} else if (jpyVal >= 12000 && jpyVal < 15000){
 					newMkUPRate = newMkUPRate - 0.25;
+				} else if (jpyVal >= 12000 && jpyVal < 15000){
+					newMkUPRate = newMkUPRate - 0.30;
 				} else if (jpyVal >= 15000) {
 					newMkUPRate = newMkUPRate - 0.35;
 				} 
