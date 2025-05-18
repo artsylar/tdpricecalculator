@@ -90,6 +90,7 @@
 			var jpyVal = $('#iJpy').val();
 			var storeCategory = $('#iStoreCategory').val();
 			var mkUPRate = 0;
+			var newMkUPRate = 0;
 			var baseMUPriceUSD = 0;
 			var finalSRPUSD = 0;
 			var basePriceUSD = 0;
@@ -116,7 +117,7 @@
 					case 8: finalSRPUSD = 11; break;
 				}
 			} else {
-				var newMkUPRate = mkUPRate;				
+				newMkUPRate = mkUPRate;				
 				if (jpyVal >= 3500 && jpyVal < 7500){
 					newMkUPRate = newMkUPRate - 0.05;
 				} else if (jpyVal >= 7500 && jpyVal < 12000){
@@ -125,7 +126,7 @@
 					newMkUPRate = newMkUPRate - 0.25;
 				} else if (jpyVal >= 15000) {
 					newMkUPRate = newMkUPRate - 0.35;
-				}
+				} 
 			}
 			
 			baseMUPriceUSD = basePriceUSD * (1 + newMkUPRate);
