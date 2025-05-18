@@ -116,32 +116,21 @@
 					case 8: finalSRPUSD = 11; break;
 				}
 			} else {
-				baseMUPriceUSD = basePriceUSD * (1+mkUPRate);
-				
-				if (jpyVal >= 0 && jpyVal < 3500){
-					finalSRPUSD = baseMUPriceUSD;
-					
-				} else if (jpyVal >= 3500 && jpyVal < 7500){
-					finalSRPUSD = baseMUPriceUSD - (basePriceUSD * (mkUPRate - 0.10));
-				
+				var newMkUPRate = mkUPRate;				
+				if (jpyVal >= 3500 && jpyVal < 7500){
+					newMkUPRate = newMkUPRate - 0.05;
 				} else if (jpyVal >= 7500 && jpyVal < 12000){
-					
-					var newMkUPRate = 0;
-					newMkUPRate = mkUPRate - 0.20;
-					
-					if (newMkUPRate == 0){
-						finalSRPUSD = basePriceUSD;
-					} else {
-						finalSRPUSD = basePriceUSD * (1 + newMkUPRate);
-					}
-				
+					newMkUPRate = newMkUPRate - 0.15;
 				} else if (jpyVal >= 12000 && jpyVal < 15000){
-					finalSRPUSD = baseMUPriceUSD - (basePriceUSD * (mkUPRate + 0.05));
-				
+					newMkUPRate = newMkUPRate - 0.25;
 				} else if (jpyVal >= 15000) {
-					finalSRPUSD = baseMUPriceUSD - (basePriceUSD * (mkUPRate + 0.10));
+					newMkUPRate = newMkUPRate - 0.35;
 				}
 			}
+			
+			baseMUPriceUSD = basePriceUSD * (1 + newMkUPRate);
+			finalSRPUSD = baseMUPriceUSD;
+			
 			return finalSRPUSD;
 			
 		  }
