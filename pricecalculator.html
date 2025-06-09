@@ -44,8 +44,9 @@
 		  <div class="usd">
 		  </div>
       </div>
-		  <script>
-            
+		   <script type="text/javascript"  src="https://cdn.shopify.com/s/javascripts/currencies.js"></script>
+           <script>
+		   
 			$("#iJpy").on("keyup",function(){  
 				$(".usd").html("$" + computeUSD().toFixed(2));
 			});
@@ -94,6 +95,7 @@
 			var baseMUPriceUSD = 0;
 			var finalSRPUSD = 0;
 			var basePriceUSD = 0;
+			var exchangeRateBuffer = 9;
 			
 			switch(storeCategory){
 				case "1": mkUPRate = 0.25; break; //Online Order, Regular Live Shopping
@@ -104,21 +106,26 @@
                 case "6": mkUPRate = 0.55; break; // Kuji
 			}
 			
-			basePriceUSD = jpyVal/100;
-			
+			//basePriceUSD = jpyVal/100;
+			//finalSRPUSD = basePriceUSD*mkUPRate;
+
 			// Gachapon
 			if (storeCategory == "4"){
-				switch(basePriceUSD){
-					case 2: finalSRPUSD = 3; break;
-					case 3: finalSRPUSD = 4.5; break;
-					case 4: finalSRPUSD = 6; break;
-					case 5: finalSRPUSD = 7.5; break;
-					case 6: finalSRPUSD = 9; break;
-					case 8: finalSRPUSD = 11; break;
+				switch(jpyVal){
+					case 200: finalSRPUSD = 4; break;
+					case 300: finalSRPUSD = 5; break;
+					case 400: finalSRPUSD = 6; break;
+					case 500: finalSRPUSD = 7.5; break;
+					case 600: finalSRPUSD = 9; break;
+					case 800: finalSRPUSD = 11; break;
 				}
 			} else {
-				newMkUPRate = mkUPRate;				
-				if (jpyVal >= 3500 && jpyVal < 5000){
+				newMkUPRate = 0.50 + mkUPRate;				
+				if (jpyVal <= 1000){
+					newMkUPRate+= 0.25;
+				} else if (jpyVal > 1000 && jpyVal <= 2000){
+					newMkUPRate+= 0.05;
+				}else if (jpyVal >= 3500 && jpyVal < 5000){
 					newMkUPRate = newMkUPRate - 0.05;
 				} else if (jpyVal >= 5000 && jpyVal < 7500){
 					newMkUPRate = newMkUPRate - 0.20;
@@ -129,8 +136,8 @@
 				} else if (jpyVal >= 15000) {
 					newMkUPRate = newMkUPRate - 0.35;
 				} 
-				baseMUPriceUSD = basePriceUSD * (1 + newMkUPRate);
-				finalSRPUSD = baseMUPriceUSD;
+				console.log(Currency.convert(1, 'USD', 'JPY'));
+				finalSRPUSD = (jpyVal / (Currency.convert(1, 'USD', 'JPY') - exchangeRateBuffer)) * (1 + newMkUPRate);
 			}
 			
 			return finalSRPUSD;
