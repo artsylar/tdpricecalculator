@@ -44,7 +44,8 @@
 		  <div class="usd">
 		  </div>
       </div>
-		   <script type="text/javascript"  src="https://cdn.shopify.com/s/javascripts/currencies.js"></script>
+		   <!--<script type="text/javascript"  src="https://cdn.shopify.com/s/javascripts/currencies.js"></script>-->
+		   
            <script>
 		   
 			$("#iJpy").on("keyup",function(){  
@@ -90,19 +91,24 @@
 		  
 			var jpyVal = $('#iJpy').val();
 			var storeCategory = $('#iStoreCategory').val();
-			var mkUPRate = 0;
+			var mkUPRate = 2;
 			var newMkUPRate = 0;
 			var baseMUPriceUSD = 0;
 			var finalSRPUSD = 0;
 			var basePriceUSD = 0;
-			var exchangeRateBuffer = 9;
+			//var exchangeRateBuffer = 3;
+			//var exchangeRate = 139; //as of 2025-06-17
+			
+			var exchangeRateBuffer = 0.0003;
+			var exchangeRate = 0.0067; //as of 2025-06-17
 			
 			switch(storeCategory){
-				case "1": mkUPRate = 0.25; break; //Online Order, Regular Live Shopping
-                case "2": mkUPRate = 0.30; break; //Store Pickup
-				case "3": mkUPRate = 0.35; break; //Puroland
+				case "1": break; //Online Order, Regular Live Shopping
+                case "2": mkUPRate += 0.05; break; //Store Pickup
+				case "3": mkUPRate += 0.10; break; //Puroland
+				case "5": mkUPRate += 0.07; break; //Shisui Outlet
+				// no changes for Gachapon and Kuji for now
 				case "4": mkUPRate = 0.55; break; // Gachapon
-                case "5": mkUPRate = 0.32; break; //Shisui Outlet
                 case "6": mkUPRate = 0.55; break; // Kuji
 			}
 			
@@ -120,24 +126,63 @@
 					case 800: finalSRPUSD = 11; break;
 				}
 			} else {
-				newMkUPRate = 0.50 + mkUPRate;				
-				if (jpyVal <= 1000){
-					newMkUPRate+= 0.25;
-				} else if (jpyVal > 1000 && jpyVal <= 2000){
-					newMkUPRate+= 0.05;
-				}else if (jpyVal >= 3500 && jpyVal < 5000){
-					newMkUPRate = newMkUPRate - 0.05;
-				} else if (jpyVal >= 5000 && jpyVal < 7500){
-					newMkUPRate = newMkUPRate - 0.20;
-				} else if (jpyVal >= 7500 && jpyVal < 12000){
-					newMkUPRate = newMkUPRate - 0.25;
-				} else if (jpyVal >= 12000 && jpyVal < 15000){
-					newMkUPRate = newMkUPRate - 0.30;
-				} else if (jpyVal >= 15000) {
-					newMkUPRate = newMkUPRate - 0.35;
-				} 
-				console.log(Currency.convert(1, 'USD', 'JPY'));
-				finalSRPUSD = (jpyVal / (Currency.convert(1, 'USD', 'JPY') - exchangeRateBuffer)) * (1 + newMkUPRate);
+			
+				newMkUPRate = mkUPRate;
+				
+				// Get USD equivalent with no MU yet
+				//finalSRPUSD = (jpyVal / (exchangeRate - exchangeRateBuffer));
+				finalSRPUSD = jpyVal * (exchangeRate + exchangeRateBuffer);
+				
+				if (jpyVal <600){
+					if (jpyVal < 200){
+						finalSRPUSD = 3;
+						
+					} else if (jpyVal >= 200 && jpyVal < 400){
+						finalSRPUSD = 5;
+						
+					} else if (jpyVal >= 400 && jpyVal < 499){
+						finalSRPUSD = 7.50;
+						
+					}
+				} else {
+				
+					const ranges = [
+					 { min: 500, max: 999, action: () => newMkUPRate = mkUPRate},
+					 { min: 1000, max: 1499, action: () => newMkUPRate -= 0.05},
+					 { min: 1500, max: 1999, action: () => newMkUPRate -= 0.10},
+					 { min: 2000, max: 2499, action: () => newMkUPRate -= 0.15},
+					 { min: 2500, max: 2999, action: () => newMkUPRate -= 0.20},
+					 { min: 3000, max: 3499, action: () => newMkUPRate -= 0.25},
+					 { min: 3500, max: 3999, action: () => newMkUPRate -= 0.30},
+					 { min: 4000, max: 4499, action: () => newMkUPRate -= 0.35},
+					 { min: 4500, max: 4999, action: () => newMkUPRate -= 0.40},
+					 { min: 5000, max: 7499, action: () => newMkUPRate -= 0.45},
+					 { min: 7500, max: 9999, action: () => newMkUPRate -= 0.50},
+					 { min: 10000, max: 12499, action: () => newMkUPRate -= 0.60},
+					 { min: 12500, max: 14499, action: () => newMkUPRate -= 0.65},
+				   ];
+				   
+				   
+					function handleNumber(number) {
+						const foundRange = ranges.find(range => number >= range.min && number <= range.max);
+						if (foundRange) {
+						   foundRange.action();
+						} else {
+						  newMkUPRate -= 0.70;
+						}
+					}
+					handleNumber(jpyVal);
+					
+					// Final marked up USD price 
+					finalSRPUSD *= newMkUPRate;
+				}
+			
+				//console.log(Currency.convert(1, 'USD', 'JPY'));
+				// Use this for real-time conversion; exchange rate is updated 2x a day apparently
+				//finalSRPUSD = (jpyVal / (Currency.convert(1, 'USD', 'JPY') - exchangeRateBuffer)) * (1 + newMkUPRate);
+				
+				// Use this if you want to control the exchange rate
+				//finalSRPUSD = (jpyVal / (exchangeRate - exchangeRateBuffer)) * (newMkUPRate);
 			}
 			
 			return finalSRPUSD;
