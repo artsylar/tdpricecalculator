@@ -109,7 +109,7 @@
 				case "5": mkUPRate += 0.07; break; //Shisui Outlet
 				// no changes for Gachapon and Kuji for now
 				case "4": mkUPRate = 0.55; break; // Gachapon
-                case "6": mkUPRate = 0.55; break; // Kuji
+                case "6": mkUPRate += 0.13; break; // Kuji
 			}
 			
 			//basePriceUSD = jpyVal/100;
@@ -133,17 +133,16 @@
 				//finalSRPUSD = (jpyVal / (exchangeRate - exchangeRateBuffer));
 				finalSRPUSD = jpyVal * (exchangeRate + exchangeRateBuffer);
 				
-				if (jpyVal <600){
-					if (jpyVal < 200){
-						finalSRPUSD = 3;
-						
-					} else if (jpyVal >= 200 && jpyVal < 400){
-						finalSRPUSD = 5;
-						
-					} else if (jpyVal >= 400 && jpyVal < 499){
-						finalSRPUSD = 7.50;
-						
-					}
+				
+				if (jpyVal > 0 && jpyVal < 200){
+					finalSRPUSD = 3;
+					
+				} else if (jpyVal >= 200 && jpyVal < 400){
+					finalSRPUSD = 5;
+					
+				} else if (jpyVal >= 400 && jpyVal < 499){
+					finalSRPUSD = 7.50;
+					
 				} else {
 				
 					const ranges = [
@@ -171,7 +170,10 @@
 						  newMkUPRate -= 0.70;
 						}
 					}
-					handleNumber(jpyVal);
+					
+					if (jpyVal > 0){
+						handleNumber(jpyVal);
+					}
 					
 					// Final marked up USD price 
 					finalSRPUSD *= newMkUPRate;
