@@ -58,7 +58,7 @@ function computeUSD(jpyVal, storeCategory){
   var finalSRPUSD = 0;
 
   const exchangeRateBuffer = 0.0003;
-  const exchangeRate = 0.0067; //as of 2025-06-17
+  const exchangeRate = 0.0065; //as of 2025-06-17
 	
   // Get USD equivalent with no MU yet
   finalSRPUSD = jpyVal * (exchangeRate + exchangeRateBuffer);
@@ -75,19 +75,19 @@ function computeUSD(jpyVal, storeCategory){
   } else {
   
     const ranges = [
-      { min: 500, max: 999, action: () => newMkUPRate = mkUPRate},
-      { min: 1000, max: 1499, action: () => newMkUPRate -= 0.05},
-      { min: 1500, max: 1999, action: () => newMkUPRate -= 0.10},
-      { min: 2000, max: 2499, action: () => newMkUPRate -= 0.15},
-      { min: 2500, max: 2999, action: () => newMkUPRate -= 0.20},
-      { min: 3000, max: 3499, action: () => newMkUPRate -= 0.25},
-      { min: 3500, max: 3999, action: () => newMkUPRate -= 0.30},
-      { min: 4000, max: 4499, action: () => newMkUPRate -= 0.35},
-      { min: 4500, max: 4999, action: () => newMkUPRate -= 0.40},
-      { min: 5000, max: 7499, action: () => newMkUPRate -= 0.45},
-      { min: 7500, max: 9999, action: () => newMkUPRate -= 0.50},
-      { min: 10000, max: 12499, action: () => newMkUPRate -= 0.60},
-      { min: 12500, max: 14999, action: () => newMkUPRate -= 0.65},
+		{ min: 500, max: 999, action: () => newMkUPRate = mkUPRate},
+		{ min: 1000, max: 1499, action: () => newMkUPRate -= 0.05},
+		{ min: 1500, max: 1999, action: () => newMkUPRate -= 0.10},
+		{ min: 2000, max: 2499, action: () => newMkUPRate -= 0.15},
+		{ min: 2500, max: 2999, action: () => newMkUPRate -= 0.25},
+		{ min: 3000, max: 3499, action: () => newMkUPRate -= 0.30},
+		{ min: 3500, max: 3999, action: () => newMkUPRate -= 0.35},
+		{ min: 3500, max: 3999, action: () => newMkUPRate -= 0.35},
+		{ min: 4000, max: 4499, action: () => newMkUPRate -= 0.40},
+		{ min: 4500, max: 4999, action: () => newMkUPRate -= 0.45},
+		{ min: 5000, max: 7499, action: () => newMkUPRate -= 0.50},
+		{ min: 7500, max: 9999, action: () => newMkUPRate -= 0.60},
+		{ min: 10000, max: 12499, action: () => newMkUPRate -= 0.65},
       ];
       
       
