@@ -69,13 +69,13 @@ function computeUSD(jpyVal, storeCategory){
   } else if (jpyVal >= 200 && jpyVal < 400){
     finalSRPUSD = 5;
     
-  } else if (jpyVal >= 400 && jpyVal < 500){
+  } else if (jpyVal >= 400 && jpyVal < 552){
     finalSRPUSD = 7.50;
     
   } else {
   
     const ranges = [
-		{ min: 500, max: 999, action: () => newMkUPRate = mkUPRate},
+		{ min: 552, max: 999, action: () => newMkUPRate = mkUPRate},
 		{ min: 1000, max: 1499, action: () => newMkUPRate -= 0.05},
 		{ min: 1500, max: 1999, action: () => newMkUPRate -= 0.10},
 		{ min: 2000, max: 2499, action: () => newMkUPRate -= 0.15},
