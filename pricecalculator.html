@@ -25,7 +25,7 @@
 			<select name="iStoreCategory" id="iStoreCategory">
 				<option value="1">Online Orders (*local shipping fee not yet included)</option>
    				<option value="1">Live Shopping (*depending on location, there might be misc. fee)</option>
-                <option value="2">Store Pickup (transportation fee not yet included)</option>
+                <option value="1">Store Pickup (transportation fee not yet included)</option>
                 <option value="5">Shisui Outlet Live Shopping</option>        
 				<option value="3">Sanrio Puroland Order Pickup(misc. fee (transportation, entrance fee, etc.)not yet included)</option>
 				<option value="3">Tokyo Disney Resort Park (transportation fee not yet included)</option>
@@ -100,7 +100,7 @@
 			//var exchangeRate = 139; //as of 2025-06-17
 			
 			var exchangeRateBuffer = 0.0003;
-			var exchangeRate = 0.0067; //as of 2025-06-17
+			var exchangeRate = 0.0065; //as of 2025-08-20
 			
 			switch(storeCategory){
 				case "1": break; //Online Order, Regular Live Shopping
@@ -140,25 +140,25 @@
 				} else if (jpyVal >= 200 && jpyVal < 400){
 					finalSRPUSD = 5;
 					
-				} else if (jpyVal >= 400 && jpyVal < 499){
+				} else if (jpyVal >= 400 && jpyVal < 552){
 					finalSRPUSD = 7.50;
 					
 				} else {
 				
 					const ranges = [
-					 { min: 500, max: 999, action: () => newMkUPRate = mkUPRate},
+					 { min: 552, max: 999, action: () => newMkUPRate = mkUPRate},
 					 { min: 1000, max: 1499, action: () => newMkUPRate -= 0.05},
 					 { min: 1500, max: 1999, action: () => newMkUPRate -= 0.10},
 					 { min: 2000, max: 2499, action: () => newMkUPRate -= 0.15},
-					 { min: 2500, max: 2999, action: () => newMkUPRate -= 0.20},
-					 { min: 3000, max: 3499, action: () => newMkUPRate -= 0.25},
-					 { min: 3500, max: 3999, action: () => newMkUPRate -= 0.30},
-					 { min: 4000, max: 4499, action: () => newMkUPRate -= 0.35},
-					 { min: 4500, max: 4999, action: () => newMkUPRate -= 0.40},
-					 { min: 5000, max: 7499, action: () => newMkUPRate -= 0.45},
-					 { min: 7500, max: 9999, action: () => newMkUPRate -= 0.50},
-					 { min: 10000, max: 12499, action: () => newMkUPRate -= 0.60},
-					 { min: 12500, max: 14999, action: () => newMkUPRate -= 0.65},
+					 { min: 2500, max: 2999, action: () => newMkUPRate -= 0.25},
+					 { min: 3000, max: 3499, action: () => newMkUPRate -= 0.30},
+					 { min: 3500, max: 3999, action: () => newMkUPRate -= 0.35},
+					 { min: 3500, max: 3999, action: () => newMkUPRate -= 0.35},
+					 { min: 4000, max: 4499, action: () => newMkUPRate -= 0.40},
+					 { min: 4500, max: 4999, action: () => newMkUPRate -= 0.45},
+					 { min: 5000, max: 7499, action: () => newMkUPRate -= 0.50},
+					 { min: 7500, max: 9999, action: () => newMkUPRate -= 0.60},
+					 { min: 10000, max: 12499, action: () => newMkUPRate -= 0.65},
 				   ];
 				   
 				   
