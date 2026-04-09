@@ -21,17 +21,6 @@
       <div>
       <br/>
       <br/>
-		  <label for="iStoreCategory">Store:</label>
-			<select name="iStoreCategory" id="iStoreCategory">
-				<option value="1">Online Orders (*local shipping fee not yet included)</option>
-   				<option value="1">Live Shopping (*depending on location, there might be misc. fee)</option>
-                <option value="1">Store Pickup (transportation fee not yet included)</option>
-                <option value="5">Shisui Outlet Live Shopping</option>        
-				<option value="3">Sanrio Puroland Order Pickup(misc. fee (transportation, entrance fee, etc.)not yet included)</option>
-				<option value="3">Tokyo Disney Resort Park (transportation fee not yet included)</option>
-                <option value="4">Gachapon</option>
-				<option value="6">Kuji</option>
-			</select><br/><br/>
 		  <label for="iJpy">Price in JPY</label>
 		  <input type="number" id="iJpy" name="jpy">
           <button name="action" id="btnAddTax" value="addTax" type="button" class="button">Add 10% tax</button>
@@ -39,15 +28,12 @@
           <label for="iDiscount">Discount Rate</label>
 		  <input type="number" id="iDiscount" name="discount">
           <button name="action" id="btnDiscount" value="applyDiscount" type="button" class="button">Apply</button>
-          <!--<button name="action" value="clear" type="button" class="button">CLEAR</button>-->
           <br><br>
 		  <div class="usd">
 		  </div>
       </div>
-		   <!--<script type="text/javascript"  src="https://cdn.shopify.com/s/javascripts/currencies.js"></script>-->
-		   
-           <script>
-		   
+		  <script>
+            
 			$("#iJpy").on("keyup",function(){  
 				$(".usd").html("$" + computeUSD().toFixed(2));
 			});
@@ -60,16 +46,6 @@
               this.value = '';
             });
 			
-			
-			$("#iStoreCategory").on("change", function(){
-				$(".usd").html("$" + computeUSD().toFixed(2))
-				});
-
-            $(".clear-button").on("click", function () {
-				$("#iJpy").val("");
-				$(".usd").html("");
-			});
-
             $("#btnAddTax").on("click", function () {
               　var newJpyVal = 0;
                 newJpyVal = $("#iJpy").val() * 1.10;
@@ -86,109 +62,57 @@
                   $(".usd").html("$" + computeUSD().toFixed(2));
                 }
             });
-		  
+
+          // Function to compute the USD equivalent of the JPY Price (including mark up already)
 		  function computeUSD(){
 		  
-			var jpyVal = $('#iJpy').val();
-			var storeCategory = $('#iStoreCategory').val();
-			var mkUPRate = 2;
-			var newMkUPRate = 0;
-			var baseMUPriceUSD = 0;
+			var jpyVal = parseFloat($('#iJpy').val());
+			var mkUPRate = 1.90;
 			var finalSRPUSD = 0;
-			var basePriceUSD = 0;
-			//var exchangeRateBuffer = 3;
-			//var exchangeRate = 139; //as of 2025-06-17
-			
-			var exchangeRateBuffer = 0.0003;
-			var exchangeRate = 0.0065; //as of 2025-08-20
-			
-			switch(storeCategory){
-				case "1": break; //Online Order, Regular Live Shopping
-                case "2": mkUPRate += 0.05; break; //Store Pickup
-				case "3": mkUPRate += 0.10; break; //Puroland
-				case "5": mkUPRate += 0.07; break; //Shisui Outlet
-				// no changes for Gachapon and Kuji for now
-				case "4": mkUPRate = 0.55; break; // Gachapon
-                case "6": mkUPRate += 0.13; break; // Kuji
-			}
-			
-			//basePriceUSD = jpyVal/100;
-			//finalSRPUSD = basePriceUSD*mkUPRate;
 
-			// Gachapon
-			if (storeCategory == "4"){
-				switch(jpyVal){
-					case 200: finalSRPUSD = 4; break;
-					case 300: finalSRPUSD = 5; break;
-					case 400: finalSRPUSD = 6; break;
-					case 500: finalSRPUSD = 7.5; break;
-					case 600: finalSRPUSD = 9; break;
-					case 800: finalSRPUSD = 11; break;
-				}
-			} else {
+			var exchangeRateBuffer = 0.0003;
+			var exchangeRate = 0.0065; // as of 2025-08-20, verified Apr 2026
 			
-				newMkUPRate = mkUPRate;
+			// Guard: return 0 if empty or not a number
+			if (isNaN(jpyVal) || jpyVal <= 0) return 0;
+
+			// Base USD conversion
+			finalSRPUSD = jpyVal * (exchangeRate + exchangeRateBuffer);
+
+			if (jpyVal > 0 && jpyVal < 200) {
+				finalSRPUSD = 3;
+
+			} else if (jpyVal >= 200 && jpyVal < 400) {
+				finalSRPUSD = 5;
+
+			} else if (jpyVal >= 400 && jpyVal < 550) {
+				finalSRPUSD = 7.00; // updated Apr 2026, was $7.50
+
+			} else if (jpyVal >= 550) {
+
+				// Smooth continuous markup curve (updated Apr 2026)
+				// Anchors: ¥600 = 1.90x, ¥5,000 = $48.00
+				// Floor: 1.45x for ¥6,500-¥9,999
+				//        1.40x for ¥10,000+
+				const A = 4.6496; // corrected Apr 2026
+				const B = 0.1399;
 				
-				// Get USD equivalent with no MU yet
-				//finalSRPUSD = (jpyVal / (exchangeRate - exchangeRateBuffer));
-				finalSRPUSD = jpyVal * (exchangeRate + exchangeRateBuffer);
-				
-				
-				if (jpyVal > 0 && jpyVal < 200){
-					finalSRPUSD = 3;
-					
-				} else if (jpyVal >= 200 && jpyVal < 400){
-					finalSRPUSD = 5;
-					
-				} else if (jpyVal >= 400 && jpyVal < 552){
-					finalSRPUSD = 7.50;
-					
+				var curveRate = A * Math.pow(jpyVal, -B);
+
+				var floorRate;
+				if (jpyVal >= 10000) {
+					floorRate = 1.40;
+				} else if (jpyVal >= 6500) {
+					floorRate = 1.45;
 				} else {
-				
-					const ranges = [
-					 { min: 552, max: 999, action: () => newMkUPRate = mkUPRate},
-					 { min: 1000, max: 1499, action: () => newMkUPRate -= 0.05},
-					 { min: 1500, max: 1999, action: () => newMkUPRate -= 0.10},
-					 { min: 2000, max: 2499, action: () => newMkUPRate -= 0.15},
-					 { min: 2500, max: 2999, action: () => newMkUPRate -= 0.25},
-					 { min: 3000, max: 3499, action: () => newMkUPRate -= 0.30},
-					 { min: 3500, max: 3999, action: () => newMkUPRate -= 0.35},
-					 { min: 3500, max: 3999, action: () => newMkUPRate -= 0.35},
-					 { min: 4000, max: 4499, action: () => newMkUPRate -= 0.40},
-					 { min: 4500, max: 4999, action: () => newMkUPRate -= 0.45},
-					 { min: 5000, max: 7499, action: () => newMkUPRate -= 0.50},
-					 { min: 7500, max: 9999, action: () => newMkUPRate -= 0.60},
-					 { min: 10000, max: 12499, action: () => newMkUPRate -= 0.65},
-				   ];
-				   
-				   
-					function handleNumber(number) {
-						const foundRange = ranges.find(range => number >= range.min && number <= range.max);
-						if (foundRange) {
-						   foundRange.action();
-						} else {
-						  newMkUPRate -= 0.70;
-						}
-					}
-					
-					if (jpyVal > 0){
-						handleNumber(jpyVal);
-					}
-					
-					// Final marked up USD price 
-					finalSRPUSD *= newMkUPRate;
+					floorRate = 0;
 				}
-			
-				//console.log(Currency.convert(1, 'USD', 'JPY'));
-				// Use this for real-time conversion; exchange rate is updated 2x a day apparently
-				//finalSRPUSD = (jpyVal / (Currency.convert(1, 'USD', 'JPY') - exchangeRateBuffer)) * (1 + newMkUPRate);
-				
-				// Use this if you want to control the exchange rate
-				//finalSRPUSD = (jpyVal / (exchangeRate - exchangeRateBuffer)) * (newMkUPRate);
+
+				var newMkUPRate = Math.max(floorRate, curveRate);
+				finalSRPUSD *= newMkUPRate;
 			}
-			
+
 			return finalSRPUSD;
-			
 		  }
 	</script>
 	</body>
