@@ -1,4 +1,3 @@
-
 function onEdit(e) {
   if (!e) throw new Error('Please do not run the script in the script editor window. It runs automatically when you hand edit the spreadsheet.');
   // Set a comment on the edited cell to indicate when it was changed.
@@ -15,9 +14,9 @@ function onEdit(e) {
     let usdPriceCell = SpreadsheetApp.getActiveSheet().getRange(range.getRow(), colUSDPrice);
     //console.log("usdPriceCell " + usdPriceCell.getA1Notation());
     if (jpyPrice > 0){
-      usdPrice = Math.round(computeUSD(jpyPrice, 1) * 100) / 100;
+      usdPrice = Math.round(computeUSD(jpyPrice) * 100) / 100;
     }
-    //console.log(usdPrice);
+    console.log(usdPrice);
     usdPriceCell.setValue(usdPrice);
   }
 }
@@ -51,63 +50,52 @@ function fconvertJpyToUsd() {
 }*/
 
 // Function to compute the USD equivalent of the JPY Price (including mark up already)
-function computeUSD(jpyVal, storeCategory){
+function computeUSD(jpyVal){
 		  
-  var mkUPRate = 2;
-  var newMkUPRate = mkUPRate;
+  var mkUPRate = 1.90;
   var finalSRPUSD = 0;
 
-  const exchangeRateBuffer = 0.0003;
-  const exchangeRate = 0.0065; //as of 2025-06-17
-	
-  // Get USD equivalent with no MU yet
+  var exchangeRateBuffer = 0.0003;
+  var exchangeRate = 0.0065; // as of 2025-08-20, verified Apr 2026
+  
+  // Guard: return 0 if empty or not a number
+  if (isNaN(jpyVal) || jpyVal <= 0) return 0;
+
+  // Base USD conversion
   finalSRPUSD = jpyVal * (exchangeRate + exchangeRateBuffer);
-  
-  if (jpyVal > 0 && jpyVal < 200){
+
+  if (jpyVal > 0 && jpyVal < 200) {
     finalSRPUSD = 3;
-    
-  } else if (jpyVal >= 200 && jpyVal < 400){
+
+  } else if (jpyVal >= 200 && jpyVal < 400) {
     finalSRPUSD = 5;
+
+  } else if (jpyVal >= 400 && jpyVal < 550) {
+    finalSRPUSD = 7.00; // updated Apr 2026, was $7.50
+
+  } else if (jpyVal >= 550) {
+
+    // Smooth continuous markup curve (updated Apr 2026)
+    // Anchors: ¥600 = 1.90x, ¥5,000 = $48.00
+    // Floor: 1.45x for ¥6,500-¥9,999
+    //        1.40x for ¥10,000+
+    const A = 4.6496; // corrected Apr 2026
+    const B = 0.1399;
     
-  } else if (jpyVal >= 400 && jpyVal < 552){
-    finalSRPUSD = 7.50;
-    
-  } else {
-  
-    const ranges = [
-		{ min: 552, max: 999, action: () => newMkUPRate = mkUPRate},
-		{ min: 1000, max: 1499, action: () => newMkUPRate -= 0.05},
-		{ min: 1500, max: 1999, action: () => newMkUPRate -= 0.10},
-		{ min: 2000, max: 2499, action: () => newMkUPRate -= 0.15},
-		{ min: 2500, max: 2999, action: () => newMkUPRate -= 0.25},
-		{ min: 3000, max: 3499, action: () => newMkUPRate -= 0.30},
-		{ min: 3500, max: 3999, action: () => newMkUPRate -= 0.35},
-		{ min: 3500, max: 3999, action: () => newMkUPRate -= 0.35},
-		{ min: 4000, max: 4499, action: () => newMkUPRate -= 0.40},
-		{ min: 4500, max: 4999, action: () => newMkUPRate -= 0.45},
-		{ min: 5000, max: 7499, action: () => newMkUPRate -= 0.50},
-		{ min: 7500, max: 9999, action: () => newMkUPRate -= 0.60},
-		{ min: 10000, max: 12499, action: () => newMkUPRate -= 0.65},
-      ];
-      
-      
-    function handleNumber(number) {
-      const foundRange = ranges.find(range => number >= range.min && number <= range.max);
-      if (foundRange) {
-          foundRange.action();
-      } else {
-        newMkUPRate -= 0.70;
-      }
+    var curveRate = A * Math.pow(jpyVal, -B);
+
+    var floorRate;
+    if (jpyVal >= 10000) {
+      floorRate = 1.40;
+    } else if (jpyVal >= 6500) {
+      floorRate = 1.45;
+    } else {
+      floorRate = 0;
     }
-    
-    if (jpyVal > 0){
-      handleNumber(jpyVal);
-    }
-    
-    // Final marked up USD price 
+
+    var newMkUPRate = Math.max(floorRate, curveRate);
     finalSRPUSD *= newMkUPRate;
   }
- 
+
   return finalSRPUSD;
-			
 }
